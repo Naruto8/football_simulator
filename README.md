@@ -2,7 +2,8 @@
 Simulation of football game
 
 ## TODO
-- Short/Long pass
+- Add opponents
+- Short/Long pass with fail probabilities
 - Player dribbles
 - Opponents interception
 - Player movements

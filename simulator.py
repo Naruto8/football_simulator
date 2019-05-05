@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
 
-pass_pd = pd.read_csv("./pass_prob.csv").set_index('Position').T
+short_pass_pd = pd.read_csv("./short_pass.csv").set_index('Position').T
+long_pass_pd = pd.read_csv("./long_pass.csv").set_index('Position').T
 
 player_ind = ['GK', 'RB', 'RCB', 'LCB', 'LB', 'CDM', 'RCM', 'LCM', 'RW', 'LW', 'ST']
-short_pass_prob = np.array([0.5, 0.7, 0.9, 0.9, 0.7, 0.65, 0.6, 0.6, 0.8, 0.8, 0.9])
+short_pass_prob = np.array([0.5, 0.7, 0.9, 0.9, 0.7, 0.65, 0.6, 0.6, 0.8, 0.8, 1])
 long_pass_prob = 1. - short_pass_prob
 shoot_prob = np.array([0, 0, 0, 0, 0, 0.08, 0.13, 0.17, 0.25, 0.26, 0.6])
 shoot_fail_prob = np.array([0, 0, 0, 0, 0, 0.9, 0.8, 0.8, 0.68, 0.7, 0.5])
@@ -16,7 +17,8 @@ def decide_action(player):
     else:
         return 'pass'
 
-def perform_pass(player):
+def perform_pass(player, pass_type):
+    pass_pd = short_pass_pd if pass_type is 'short' else long_pass_pd
     p = np.random.rand()
     cumulative_prob = 0
     for i, pass_p in enumerate(pass_pd[player]):
@@ -24,7 +26,10 @@ def perform_pass(player):
         if p > cumulative_prob:
             continue
         else:
-            print(player + " passes to " + player_ind[i])
+            if pass_type == 'short':
+                print(player + " gives a short pass to " + player_ind[i])
+            else:
+                print(player + " sprays a long pass to " + player_ind[i])
             return i
     print("fail")
 
@@ -40,7 +45,13 @@ def play(player):
     while goal == 0:
         action = decide_action(next_player)
         if action is 'pass':
-            next_player = perform_pass(player_ind[next_player])
+            short_pass = np.random.rand()
+            pass_type = ''
+            if short_pass < short_pass_prob[next_player]:
+                pass_type = 'short'
+            else:
+                pass_type = 'long'
+            next_player = perform_pass(player_ind[next_player], pass_type)
         else:
             print(player_ind[next_player] + " shoots!")
             shot = perform_shoot(next_player)
